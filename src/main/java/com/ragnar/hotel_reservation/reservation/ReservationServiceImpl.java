@@ -85,6 +85,17 @@ public class ReservationServiceImpl implements  ReservationService {
         return reservation.get();
     }
 
+    @Override
+    public Reservation findReservationByRoomNumber(int id) {
+        Optional<Reservation> reservation = reservationRepository.findReservationsByReservedRoom_RoomNumber(id);
+        if(reservation.isEmpty()){
+            throw new ResourceNotFoundException(
+                    "reservation with id [%s] not found".formatted(id)
+            );
+        }
+        return reservation.get();
+    }
+
     private String generateTransactionId(){
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int transactionId;

@@ -20,4 +20,5 @@ public interface ReservationService {
 
     Reservation findReservationByTransactionId(String id);
 
+    Reservation findReservationByRoomNumber(int id);
 }
