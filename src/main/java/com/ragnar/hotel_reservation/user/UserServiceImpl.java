@@ -4,8 +4,8 @@ import com.ragnar.hotel_reservation.exception.DuplicateResourceException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.util.List;
+import java.util.Optional;
 
 @Service
 @AllArgsConstructor
@@ -14,7 +14,13 @@ public class UserServiceImpl implements UserService{
     private final UserRepository userRepository;
     @Override
     public User findUserById(Long id) {
-        return userRepository.findById(id).orElseThrow();
+        Optional<User> user = userRepository.findUserById(id);
+        if(user.isEmpty()){
+            throw new ResourceNotFoundException(
+                    "user with id [%s] not found".formatted(id)
+            );
+        }
+        return user.get();
     }
     @Override
     public List<User> findAllUser() {

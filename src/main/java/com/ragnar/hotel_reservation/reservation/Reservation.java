@@ -37,8 +37,10 @@ public class Reservation {
     private boolean hasCheckedIn;
     @OneToOne
     private User user;
-    @OneToOne
+
+    @OneToOne(cascade = CascadeType.ALL)
     private Room reservedRoom;
+
     private double totalCharge;
     private String transactionId;
 

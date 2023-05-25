@@ -2,7 +2,6 @@ package com.ragnar.hotel_reservation.reservation;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
 
 @RestController
@@ -16,7 +15,7 @@ public class ReservationController {
             @PathVariable("reservationId") Long reservationId){
         return reservationService.findReservationById(reservationId);
     }
-    @GetMapping(path = "{transactionId}")
+    @GetMapping(path = "transaction/{transactionId}")
     public Reservation findReservationByTransactionId(
             @PathVariable("transactionId") String reservationId){
         return reservationService.findReservationByTransactionId(reservationId);
@@ -33,7 +32,7 @@ public class ReservationController {
     public void checkClientInOrOut(@PathVariable("transactionId")String transactionId ){
         reservationService.checkClientInOrOut(transactionId);
     }
-    @GetMapping(path = "{userId}")
+    @GetMapping(path = "user/{userId}")
     public List<Reservation> findAllReservationsForUser(
             @PathVariable("userId") Long userId){
         return  reservationService.getAllReservationsForAUser(userId);

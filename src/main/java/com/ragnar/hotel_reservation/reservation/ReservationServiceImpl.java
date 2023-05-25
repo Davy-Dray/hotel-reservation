@@ -8,6 +8,9 @@ import com.ragnar.hotel_reservation.user.User;
 import com.ragnar.hotel_reservation.user.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -36,11 +39,15 @@ public class ReservationServiceImpl implements  ReservationService {
     @Override
     public void createReservation(ReservationRequest reservationRequest) {
 
+        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
+        LocalDate checkInDate = LocalDate.parse(reservationRequest.checkInDate(), formatter);
+        LocalDate checkOutDate = LocalDate.parse(reservationRequest.checkOutDate(), formatter);
+
         User user = userService.findUserById(reservationRequest.userId());
         Room room = roomService.findRoomById(reservationRequest.roomId());
         Reservation reservation = new Reservation(
-                reservationRequest.checkInDate(),
-                reservationRequest.checkOutDate(),
+                checkInDate,
+                checkOutDate,
                 user,
                 generateTransactionId(),
                 room
@@ -51,8 +58,7 @@ public class ReservationServiceImpl implements  ReservationService {
     @Override
     public void checkClientInOrOut(String reservationId) {
         Reservation reservation = findReservationByTransactionId(reservationId);
-        boolean checkedInStatus = reservation.isHasCheckedIn();
-        reservation.setHasCheckedIn(checkedInStatus);
+        reservation.setHasCheckedIn(!reservation.isHasCheckedIn());
         reservationRepository.save(reservation);
     }
 

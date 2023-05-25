@@ -6,7 +6,7 @@ public record ReservationRequest(
         long userId,
         long roomId,
 
-        LocalDate checkInDate,
-        LocalDate checkOutDate
+        String checkInDate,
+        String checkOutDate
 ) {
 }
