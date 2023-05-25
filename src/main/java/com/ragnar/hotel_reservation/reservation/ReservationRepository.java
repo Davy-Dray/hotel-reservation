@@ -10,4 +10,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     Optional<Reservation>findReservationById(Long reservationId);
     List<Reservation> findReservationsByUserId(Long userId);
+
+    Optional<Reservation> findReservationsByTransactionId(String transactionId);
+    boolean existsByTransactionId(String transactionId);
 }

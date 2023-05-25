@@ -16,6 +16,11 @@ public class ReservationController {
             @PathVariable("reservationId") Long reservationId){
         return reservationService.findReservationById(reservationId);
     }
+    @GetMapping(path = "{transactionId}")
+    public Reservation findReservationByTransactionId(
+            @PathVariable("transactionId") String reservationId){
+        return reservationService.findReservationByTransactionId(reservationId);
+    }
     @GetMapping
     public List<Reservation> findAllReservations(){
         return reservationService.findAllReservations();
@@ -24,5 +29,17 @@ public class ReservationController {
     public void createReservation(@RequestBody ReservationRequest request){
         reservationService.createReservation(request);
     }
-
+    @PutMapping(path = "{transactionId}")
+    public void checkClientInOrOut(@PathVariable("transactionId")String transactionId ){
+        reservationService.checkClientInOrOut(transactionId);
+    }
+    @GetMapping(path = "{userId}")
+    public List<Reservation> findAllReservationsForUser(
+            @PathVariable("userId") Long userId){
+        return  reservationService.getAllReservationsForAUser(userId);
+    }
+    @DeleteMapping(path = "{reservationId}")
+    public void deleteOrCancelReservation(@PathVariable("reservationId") Long reservationId ){
+        reservationService.deleteReservation(reservationId);
+    }
 }

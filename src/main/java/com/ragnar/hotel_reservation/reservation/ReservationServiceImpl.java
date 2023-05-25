@@ -10,6 +10,7 @@ import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.ThreadLocalRandom;
 
 @Service
 @AllArgsConstructor
@@ -48,8 +49,8 @@ public class ReservationServiceImpl implements  ReservationService {
         reservationRepository.save(reservation);
     }
     @Override
-    public void checkClientInOrOut(long reservationId) {
-        Reservation reservation = findReservationById(reservationId);
+    public void checkClientInOrOut(String reservationId) {
+        Reservation reservation = findReservationByTransactionId(reservationId);
         boolean checkedInStatus = reservation.isHasCheckedIn();
         reservation.setHasCheckedIn(checkedInStatus);
         reservationRepository.save(reservation);
@@ -63,7 +64,6 @@ public class ReservationServiceImpl implements  ReservationService {
     public List<Reservation> getAllReservationsForAUser(Long id) {
         return reservationRepository.findReservationsByUserId(id);
     }
-
     @Override
     public void deleteReservation(Long id) {
       if(!existsReservationById(id)){
@@ -74,8 +74,25 @@ public class ReservationServiceImpl implements  ReservationService {
       reservationRepository.deleteById(id);
     }
 
-    //TODO:generate TransactionId
+    @Override
+    public Reservation findReservationByTransactionId(String id) {
+        Optional<Reservation> reservation = reservationRepository.findReservationsByTransactionId(id);
+        if(reservation.isEmpty()){
+            throw new ResourceNotFoundException(
+                    "reservation with id [%s] not found".formatted(id)
+            );
+        }
+        return reservation.get();
+    }
+
     private String generateTransactionId(){
-        return "";
+        ThreadLocalRandom random = ThreadLocalRandom.current();
+        int transactionId;
+        boolean exists;
+        do {
+            transactionId = random.nextInt(1_000_000_000);
+            exists = reservationRepository.existsByTransactionId(String.format("%09d", transactionId));
+        } while (exists);
+        return String.format("%09d", transactionId);
     }
 }

@@ -10,11 +10,14 @@ public interface ReservationService {
 
     void createReservation(ReservationRequest reservationRequest);
 
-    void checkClientInOrOut(long reservationId);
+    void checkClientInOrOut(String reservationId);
 
     boolean existsReservationById(Long id);
 
     List<Reservation> getAllReservationsForAUser(Long id);
 
     void deleteReservation(Long id);
+
+    Reservation findReservationByTransactionId(String id);
+
 }
