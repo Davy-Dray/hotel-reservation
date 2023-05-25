@@ -2,9 +2,7 @@ package com.ragnar.hotel_reservation.room;
 
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
-
 import java.util.List;
-import java.util.Optional;
 
 @RestController
 @AllArgsConstructor
@@ -18,7 +16,7 @@ public class RoomController {
       return roomService.getAllRooms();
     }
     @GetMapping(path ="{roomId}")
-    public Optional<Room> getRoomById(@PathVariable("roomId") Long roomId){
+    public Room getRoomById(@PathVariable("roomId") Long roomId){
         return roomService.findRoomById(roomId);
     }
     @PostMapping
@@ -28,5 +26,12 @@ public class RoomController {
     @DeleteMapping(path ="{roomId}")
     public void deleteRoomById(@PathVariable("roomId") Long roomId){
         roomService.deleteRoom(roomId);
+    }
+
+    @PutMapping(path = "{roomId}")
+    public void updateRoom(@PathVariable("roomId") Long roomId,
+                           @RequestBody RoomUpdateRequest roomUpdateRequest){
+        roomService.upDateRoom(roomUpdateRequest,roomId);
+
     }
 }

@@ -1,4 +1,12 @@
 package com.ragnar.hotel_reservation.reservation;
 
-public record ReservationRequest() {
+import java.time.LocalDate;
+
+public record ReservationRequest(
+        long userId,
+        long roomId,
+
+        LocalDate checkInDate,
+        LocalDate checkOutDate
+) {
 }

@@ -8,7 +8,13 @@ public interface ReservationService {
 
     List <Reservation> findAllReservations();
 
-    Reservation createReservation(ReservationRequest reservationRequest);
+    void createReservation(ReservationRequest reservationRequest);
 
-    void updateReservationStatus(Long id);
+    void checkClientInOrOut(long reservationId);
+
+    boolean existsReservationById(Long id);
+
+    List<Reservation> getAllReservationsForAUser(Long id);
+
+    void deleteReservation(Long id);
 }

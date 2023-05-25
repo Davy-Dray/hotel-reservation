@@ -9,6 +9,7 @@ import lombok.Setter;
 import java.time.LocalDate;
 import java.time.LocalDateTime;
 import java.time.format.DateTimeFormatter;
+import java.time.temporal.ChronoUnit;
 
 @Entity
 @Getter
@@ -39,6 +40,7 @@ public class Reservation {
     @OneToOne
     private Room reservedRoom;
     private double totalCharge;
+    private String transactionId;
 
 
     private static final DateTimeFormatter DATE_TIME_FORMATTER =
@@ -48,8 +50,8 @@ public class Reservation {
             LocalDate checkInDate,
             LocalDate checkOutDate,
             User user,
-            Room reservedRoom,
-            double totalCharge
+            String transactionId,
+            Room reservedRoom
     ) {
         this.checkInDate = LocalDate.parse(
                 DATE_TIME_FORMATTER.format(checkInDate),
@@ -59,13 +61,20 @@ public class Reservation {
                 DATE_TIME_FORMATTER.format(checkOutDate),
                 DATE_TIME_FORMATTER
         );
-        this.hasCheckedIn = false;
-        this.user = user;
-        this.reservedRoom = reservedRoom;
         this.createdAt = LocalDate.parse(
                 DATE_TIME_FORMATTER.format(LocalDateTime.now()),
                 DATE_TIME_FORMATTER
         );
-        this.totalCharge = totalCharge;
+
+        this.hasCheckedIn = false;
+        this.user = user;
+        this.reservedRoom = reservedRoom;
+        this.totalCharge = getTotalFee();
+        this.transactionId = transactionId;
+    }
+
+    double getTotalFee(){
+        long daysBetween = ChronoUnit.DAYS.between(checkInDate, checkOutDate);
+        return reservedRoom.getBookingPrice()*daysBetween;
     }
 }

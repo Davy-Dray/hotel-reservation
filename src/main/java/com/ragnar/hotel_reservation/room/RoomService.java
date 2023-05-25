@@ -5,7 +5,7 @@ import java.util.Optional;
 
 public interface RoomService {
 
-    Optional<Room> findRoomById(Long id);
+    Room findRoomById(Long id);
 
     List<Room> getAllRooms();
 
@@ -15,4 +15,5 @@ public interface RoomService {
 
     boolean existsRoomWithId(Long id);
 
+    void upDateRoom(RoomUpdateRequest request,Long roomId);
 }

@@ -13,13 +13,14 @@ public class RoomServiceImpl implements RoomService {
     private final RoomRepository roomRepository;
 
     @Override
-    public Optional<Room> findRoomById(Long id) {
-
-        return Optional.ofNullable(
-                roomRepository.findById(id).
-                orElseThrow(() -> new ResourceNotFoundException(
-                        "customer [%s] not found".formatted(id)
-                )));
+    public Room findRoomById(Long id) {
+        Optional<Room> room = roomRepository.findRoomById(id);
+        if(room.isEmpty()){
+            throw new ResourceNotFoundException(
+                    "Room with id [%s] not found".formatted(id)
+            );
+        }
+      return room.get();
     }
 
     @Override
@@ -29,9 +30,9 @@ public class RoomServiceImpl implements RoomService {
 
     @Override
     public void deleteRoom(Long id) {
-        if(!existsRoomWithId(id)){
+        if(existsRoomWithId(id)){
             throw new ResourceNotFoundException(
-                    "Room [%s] not found".formatted(id)
+                    "Room with id [%s] not found".formatted(id)
             );
         }
         roomRepository.deleteById(id);
@@ -47,15 +48,42 @@ public class RoomServiceImpl implements RoomService {
 
     private RoomType parseRoomType(String roomTypeName) {
         try {
-            return RoomType.valueOf(roomTypeName);
-        } catch (IllegalArgumentException e) {
-            throw new ResourceNotFoundException("Invalid room type");
+            return RoomType.valueOf(roomTypeName.toUpperCase());
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(
+                    "[%s] is not a valid room type".formatted(roomTypeName)
+            );
+        }
+    }
+    private RoomStatus parseRoomStatus(String roomStatusName) {
+        try {
+            return RoomStatus.valueOf(roomStatusName.toUpperCase());
+        } catch (ResourceNotFoundException e) {
+            throw new ResourceNotFoundException(
+                    "[%s] is not a valid room type".formatted(roomStatusName)
+            );
         }
     }
     @Override
     public boolean existsRoomWithId(Long id) {
-        return roomRepository.existsById(id);
+        return !roomRepository.existsById(id);
     }
 
+    @Override
+    public void upDateRoom(RoomUpdateRequest request,Long roomId){
+        if(existsRoomWithId(roomId)){
+            throw new ResourceNotFoundException(
+                    "Room with id [%s] not found".formatted(roomId)
+            );
+        }
+        Room room = findRoomById(roomId);
+        RoomType roomType = parseRoomType(request.roomType());
+        RoomStatus roomStatus = parseRoomStatus(request.roomStatus());
+        room.setRoomType(roomType);
+        room.setRoomStatus(roomStatus);
+        room.setRoomNumber(request.roomNumber());
+        roomRepository.save(room);
+
+    }
 
 }

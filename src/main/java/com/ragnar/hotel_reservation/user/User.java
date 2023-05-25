@@ -32,8 +32,9 @@ public class User {
     private String firstname;
     private String lastname;
 
-    @OneToMany
     @JsonIgnore
+    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+    @JoinColumn(name = "reservation_id")
     private Set<Reservation>userReservations;
 
     public User(String email,
