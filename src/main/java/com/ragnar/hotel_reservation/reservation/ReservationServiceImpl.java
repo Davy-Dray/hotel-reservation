@@ -10,7 +10,6 @@ import com.ragnar.hotel_reservation.user.User;
 import com.ragnar.hotel_reservation.user.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
-
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
