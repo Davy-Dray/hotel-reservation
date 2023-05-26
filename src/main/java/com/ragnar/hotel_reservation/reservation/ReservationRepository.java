@@ -18,10 +18,11 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
 
     Optional<Reservation>findReservationsByReservedRoom_RoomNumber(int id);
 
-    @Query("SELECT r FROM Reservation r WHERE r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate")
-    List<Reservation> findOverlappingReservations(
+    @Query("SELECT r FROM Reservation r WHERE r.reservedRoom.id = :roomId " +
+            "AND r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate")
+    List<Reservation> findOverlappingReservationsForRoom(
+            @Param("roomId") Long roomId,
             @Param("checkInDate") LocalDate checkInDate,
             @Param("checkOutDate") LocalDate checkOutDate
     );
-
 }

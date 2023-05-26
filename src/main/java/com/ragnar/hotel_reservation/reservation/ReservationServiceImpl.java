@@ -47,7 +47,7 @@ public class ReservationServiceImpl implements ReservationService {
         LocalDate checkOutDate = parseLocalDate(reservationRequest.checkOutDate());
         validateReservationDates(checkInDate, checkOutDate);
 
-        if (!isReservationAllowed(checkInDate, checkOutDate)) {
+        if (!isReservationAllowed(reservationRequest.roomId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(
                     "Room is not available for the specified dates. Please choose another date or another room."
             );
@@ -59,7 +59,6 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = new Reservation(
                 checkInDate, checkOutDate, user, generateTransactionId(), room
         );
-        room.setRoomStatus(RoomStatus.OCCUPIED);
         reservationRepository.save(reservation);
     }
 
@@ -74,11 +73,21 @@ public class ReservationServiceImpl implements ReservationService {
         }
     }
     @Override
-    public void checkClientInOrOut(String reservationId) {
-        Reservation reservation = findReservationByTransactionId(reservationId);
-        reservation.setHasCheckedIn(!reservation.isHasCheckedIn());
+    public void checkClientInOrOut(String transactionId) {
+        Reservation reservation = findReservationByTransactionId(transactionId);
+
+        boolean hasCheckedIn = reservation.isHasCheckedIn();
+        Room reservedRoom = reservation.getReservedRoom();
+        if (!hasCheckedIn) {
+            reservation.setHasCheckedIn(true);
+            reservedRoom.setRoomStatus(RoomStatus.OCCUPIED);
+        } else {
+            reservation.setHasCheckedIn(false);
+            reservedRoom.setRoomStatus(RoomStatus.AVAILABLE);
+        }
         reservationRepository.save(reservation);
     }
+
 
     @Override
     public boolean existsReservationById(Long id) {
@@ -133,9 +142,9 @@ public class ReservationServiceImpl implements ReservationService {
         return String.format("%09d", transactionId);
     }
 
-    private boolean isReservationAllowed(LocalDate checkInDate, LocalDate checkOutDate) {
+    private boolean isReservationAllowed(Long roomId,LocalDate checkInDate, LocalDate checkOutDate) {
         List<Reservation> overlappingReservations = reservationRepository
-                .findOverlappingReservations(checkInDate, checkOutDate);
+                .findOverlappingReservationsForRoom(roomId,checkInDate, checkOutDate);
         return overlappingReservations.isEmpty();
     }
 }
