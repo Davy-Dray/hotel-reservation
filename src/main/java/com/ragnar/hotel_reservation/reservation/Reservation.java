@@ -30,6 +30,7 @@ public class Reservation {
     @Column(nullable = false)
     private LocalDate checkInDate;
     @Column(nullable = false)
+
     private LocalDate checkOutDate;
     @Column(nullable = false)
     private LocalDate createdAt;
