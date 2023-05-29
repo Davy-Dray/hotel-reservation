@@ -18,12 +18,14 @@ public class NotificationSenderService {
 
     public void sendBookingConfirmationSms(SmsTemplate template){
 
-        final String receiverMessage = "Dear " + template.clientName() + ", your booking has been confirmed for " + template.checkInDate() + ". Your booking ID is " + template.transactionId() + ". Room type: " + template.roomType() + ".";
-
+        String message = "Dear " + template.clientName() +
+                ", your booking has been confirmed for " + template.checkInDate() +
+                ". Your booking ID is " + template.transactionId() +
+                ", room " + template.roomType() + ".";
 
         twilioSmsSenderService.sendSms(new SmsNotification(
                 template.clientNumber(),
-                receiverMessage
+                message
         ));
 
     }

@@ -64,15 +64,15 @@ public class ReservationServiceImpl implements ReservationService {
 
         reservationRepository.save(reservation);
 
-        notificationSenderService.sendBookingConfirmationSms(
-                new  SmsTemplate(
-                        user.getFirstname(),
-                        user.getPhoneNumber(),
-                        checkInDate,
-                        room.getRoomType().toString(),
-                        reservation.getTransactionId()
-                )
-        );
+//        notificationSenderService.sendBookingConfirmationSms(
+//                new  SmsTemplate(
+//                        user.getFirstname(),
+//                        user.getPhoneNumber(),
+//                        checkInDate,
+//                        room.getRoomType().toString(),
+//                        reservation.getTransactionId()
+//                )
+//        );
     }
 
     private LocalDate parseLocalDate(String date) {
