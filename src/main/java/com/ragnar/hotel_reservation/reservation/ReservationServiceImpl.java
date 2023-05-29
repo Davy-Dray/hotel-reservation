@@ -88,19 +88,19 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void checkClientInOrOut(String transactionId) {
         Reservation reservation = findReservationByTransactionId(transactionId);
-
         boolean hasCheckedIn = reservation.isHasCheckedIn();
         Room reservedRoom = reservation.getReservedRoom();
         if (!hasCheckedIn) {
             reservation.setHasCheckedIn(true);
+            reservation.setStatus(ReservationStatus.ACTIVE);
             reservedRoom.setRoomStatus(RoomStatus.OCCUPIED);
         } else {
             reservation.setHasCheckedIn(false);
+            reservation.setStatus(ReservationStatus.COMPLETED);
             reservedRoom.setRoomStatus(RoomStatus.AVAILABLE);
         }
         reservationRepository.save(reservation);
     }
-
 
     @Override
     public boolean existsReservationById(Long id) {
@@ -142,6 +142,21 @@ public class ReservationServiceImpl implements ReservationService {
             );
         }
         return reservation.get();
+    }
+
+    @Override
+    public void cancelReservation(String transactionId) {
+        Optional<Reservation> optionalReservation =
+                reservationRepository.findReservationsByTransactionId(transactionId);
+
+        if (optionalReservation.isEmpty()) {
+            throw new ResourceNotFoundException(
+                    "reservation with id [%s] not found".formatted(transactionId)
+            );
+        }
+        Reservation reservation = optionalReservation.get();
+        reservation.setStatus(ReservationStatus.CANCELLED);
+        reservationRepository.save(reservation);
     }
 
     private String generateTransactionId() {

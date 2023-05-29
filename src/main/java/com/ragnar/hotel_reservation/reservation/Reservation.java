@@ -42,6 +42,9 @@ public class Reservation {
     @OneToOne(cascade = CascadeType.ALL)
     private Room reservedRoom;
 
+    @Enumerated(EnumType.STRING)
+    private ReservationStatus status;
+
     private double totalCharge;
     private String transactionId;
 
@@ -68,12 +71,11 @@ public class Reservation {
                 DATE_TIME_FORMATTER.format(LocalDateTime.now()),
                 DATE_TIME_FORMATTER
         );
-
-        this.hasCheckedIn = false;
         this.user = user;
         this.reservedRoom = reservedRoom;
         this.totalCharge = getTotalFee();
         this.transactionId = transactionId;
+        this.status = ReservationStatus.PENDING;
     }
 
     double getTotalFee(){

@@ -18,7 +18,9 @@ public interface ReservationService {
 
     void deleteReservation(Long id);
 
-    Reservation findReservationByTransactionId(String id);
+    Reservation findReservationByTransactionId(String transactionId);
 
     Reservation findReservationByRoomNumber(int id);
+
+    void cancelReservation(String transactionId);
 }

@@ -15,10 +15,21 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     boolean existsByTransactionId(String transactionId);
     Optional<Reservation>findReservationsByReservedRoom_RoomNumber(int id);
     @Query("SELECT r FROM Reservation r WHERE r.reservedRoom.id = :roomId " +
-            "AND r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate")
+            "AND r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate " +
+            "AND r.status != 'CANCELLED'"
+    )
     List<Reservation> findOverlappingReservationsForRoom(
             @Param("roomId") Long roomId,
             @Param("checkInDate") LocalDate checkInDate,
             @Param("checkOutDate") LocalDate checkOutDate
+    );
+
+    @Query("SELECT r FROM Reservation r WHERE r.checkInDate = :tomorrow")
+    List<Reservation> findByCheckInDateTomorrow(LocalDate tomorrow);
+
+
+    @Query("SELECT r FROM Reservation r WHERE r.checkInDate = :yesterday AND r.status = 'PENDING'")
+    List<Reservation> findReservationsByCheckInDateAndStatus(
+            @Param("yesterday") LocalDate yesterday
     );
 }

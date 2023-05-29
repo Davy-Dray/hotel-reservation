@@ -38,7 +38,12 @@ public class ReservationController {
         return  reservationService.getAllReservationsForAUser(userId);
     }
     @DeleteMapping(path = "{reservationId}")
-    public void deleteOrCancelReservation(@PathVariable("reservationId") Long reservationId ){
+    public void delete(@PathVariable("reservationId") Long reservationId ){
         reservationService.deleteReservation(reservationId);
     }
+    @PutMapping(path = {"{transactionId}/cancel"})
+    public void cancelReservation(@PathVariable("transactionId")String transactionId){
+        reservationService.cancelReservation(transactionId);
+    }
+
 }
