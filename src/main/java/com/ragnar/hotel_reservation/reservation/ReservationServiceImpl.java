@@ -3,6 +3,8 @@ package com.ragnar.hotel_reservation.reservation;
 import com.ragnar.hotel_reservation.exception.DuplicateResourceException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
 import com.ragnar.hotel_reservation.exception.ValidationException;
+import com.ragnar.hotel_reservation.notification.NotificationSenderService;
+import com.ragnar.hotel_reservation.notification.sms.SmsTemplate;
 import com.ragnar.hotel_reservation.room.Room;
 import com.ragnar.hotel_reservation.room.RoomService;
 import com.ragnar.hotel_reservation.room.RoomStatus;
@@ -23,6 +25,7 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserService userService;
     private final RoomService roomService;
+    private  final NotificationSenderService notificationSenderService;
 
     @Override
     public Reservation findReservationById(Long id) {
@@ -58,7 +61,18 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = new Reservation(
                 checkInDate, checkOutDate, user, generateTransactionId(), room
         );
+
         reservationRepository.save(reservation);
+
+        notificationSenderService.sendBookingConfirmationSms(
+                new  SmsTemplate(
+                        user.getFirstname(),
+                        user.getPhoneNumber(),
+                        checkInDate,
+                        room.getRoomType().toString(),
+                        reservation.getTransactionId()
+                )
+        );
     }
 
     private LocalDate parseLocalDate(String date) {

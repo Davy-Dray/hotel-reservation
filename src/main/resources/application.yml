@@ -19,3 +19,8 @@ spring:
     show-sql: true
   main:
     web-application-type: servlet
+
+twilio:
+  account_sid: ACb6c82c7ea4f4d46c089b8cfc22214ff0
+  auth_token: 7771f01acb3365d583c7c4f193d80498
+  trial_number: +13159158539

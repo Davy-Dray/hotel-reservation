@@ -47,22 +47,12 @@ public class RoomServiceImpl implements RoomService {
     }
 
     private RoomType parseRoomType(String roomTypeName) {
-        try {
             return RoomType.valueOf(roomTypeName.toUpperCase());
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(
-                    "[%s] is not a valid room type".formatted(roomTypeName)
-            );
-        }
     }
     private RoomStatus parseRoomStatus(String roomStatusName) {
-        try {
+        
+
             return RoomStatus.valueOf(roomStatusName.toUpperCase());
-        } catch (ResourceNotFoundException e) {
-            throw new ResourceNotFoundException(
-                    "[%s] is not a valid room type".formatted(roomStatusName)
-            );
-        }
     }
     @Override
     public boolean existsRoomWithId(Long id) {
