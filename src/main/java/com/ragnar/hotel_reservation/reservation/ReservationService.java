@@ -23,4 +23,6 @@ public interface ReservationService {
     Reservation findReservationByRoomNumber(int id);
 
     void cancelReservation(String transactionId);
+
+    void updateReservation(Long id, ReservationUpdateRequest updateRequest);
 }

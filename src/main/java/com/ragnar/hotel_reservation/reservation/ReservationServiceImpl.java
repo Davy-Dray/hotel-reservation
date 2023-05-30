@@ -4,7 +4,6 @@ import com.ragnar.hotel_reservation.exception.DuplicateResourceException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
 import com.ragnar.hotel_reservation.exception.ValidationException;
 import com.ragnar.hotel_reservation.notification.NotificationSenderService;
-import com.ragnar.hotel_reservation.notification.sms.SmsTemplate;
 import com.ragnar.hotel_reservation.room.Room;
 import com.ragnar.hotel_reservation.room.RoomService;
 import com.ragnar.hotel_reservation.room.RoomStatus;
@@ -49,7 +48,7 @@ public class ReservationServiceImpl implements ReservationService {
         LocalDate checkOutDate = parseLocalDate(reservationRequest.checkOutDate());
         validateReservationDates(checkInDate, checkOutDate);
 
-        if (!isReservationAllowed(reservationRequest.roomId(), checkInDate, checkOutDate)) {
+        if (isReservationAllowed(reservationRequest.roomId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(
                     "Room is not available for the specified dates. Please choose another date or another room."
             );
@@ -159,6 +158,34 @@ public class ReservationServiceImpl implements ReservationService {
         reservationRepository.save(reservation);
     }
 
+    @Override
+    public void updateReservation(Long id, ReservationUpdateRequest updateRequest) {
+
+        if(!existsReservationById(id)){
+            throw new ResourceNotFoundException(
+                    "reservation with id [%s] not found".formatted(id)
+            );
+        }
+        Reservation reservation = findReservationById(id);
+
+
+        LocalDate checkInDate = parseLocalDate(updateRequest.checkInDate());
+        LocalDate checkOutDate = parseLocalDate(updateRequest.checkOutDate());
+        validateReservationDates(checkInDate, checkOutDate);
+
+        if (isReservationAllowed(reservation.getReservedRoom().getId(), checkInDate, checkOutDate)) {
+            throw new DuplicateResourceException(
+                    "Room is not available for the specified dates. Please choose another date or another room."
+            );
+        }
+
+        reservation.setCheckInDate(checkInDate);
+        reservation.setCheckOutDate(checkOutDate);
+        reservationRepository.save(reservation);
+
+
+    }
+
     private String generateTransactionId() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
         int transactionId;
@@ -173,6 +200,6 @@ public class ReservationServiceImpl implements ReservationService {
     private boolean isReservationAllowed(Long roomId,LocalDate checkInDate, LocalDate checkOutDate) {
         List<Reservation> overlappingReservations = reservationRepository
                 .findOverlappingReservationsForRoom(roomId,checkInDate, checkOutDate);
-        return overlappingReservations.isEmpty();
+        return !overlappingReservations.isEmpty();
     }
 }

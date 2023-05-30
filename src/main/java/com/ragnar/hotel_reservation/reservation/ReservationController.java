@@ -28,7 +28,7 @@ public class ReservationController {
     public void createReservation(@RequestBody ReservationRequest request){
         reservationService.createReservation(request);
     }
-    @PutMapping(path = "{transactionId}")
+    @PutMapping(path = "{transactionId}/check-in/out")
     public void checkClientInOrOut(@PathVariable("transactionId")String transactionId ){
         reservationService.checkClientInOrOut(transactionId);
     }
@@ -46,4 +46,11 @@ public class ReservationController {
         reservationService.cancelReservation(transactionId);
     }
 
+    @PutMapping(path = "{id}")
+    public void updateReservation(
+            @PathVariable("id") Long id ,
+            @RequestBody ReservationUpdateRequest updateRequest){
+
+        reservationService.updateReservation(id,updateRequest);
+    }
 }
