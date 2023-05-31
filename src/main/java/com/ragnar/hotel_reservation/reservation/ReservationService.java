@@ -10,7 +10,10 @@ public interface ReservationService {
 
     void createReservation(ReservationRequest reservationRequest);
 
-    void checkClientInOrOut(String reservationId);
+    void checkClientIn(String reservationId);
+
+    void checkClientOut(String reservationId);
+
 
     boolean existsReservationById(Long id);
 

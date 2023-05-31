@@ -8,7 +8,6 @@ import java.util.List;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-
     Optional<Reservation>findReservationById(Long reservationId);
     List<Reservation> findReservationsByUserId(Long userId);
     Optional<Reservation> findReservationsByTransactionId(String transactionId);
@@ -16,7 +15,7 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Optional<Reservation>findReservationsByReservedRoom_RoomNumber(int id);
     @Query("SELECT r FROM Reservation r WHERE r.reservedRoom.id = :roomId " +
             "AND r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate " +
-            "AND r.status != 'CANCELLED'"
+            "AND r.status != 'CANCELLED'  AND r.status !='COMPLETED'"
     )
     List<Reservation> findOverlappingReservationsForRoom(
             @Param("roomId") Long roomId,

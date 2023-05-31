@@ -28,9 +28,14 @@ public class ReservationController {
     public void createReservation(@RequestBody ReservationRequest request){
         reservationService.createReservation(request);
     }
-    @PutMapping(path = "{transactionId}/check-in/out")
-    public void checkClientInOrOut(@PathVariable("transactionId")String transactionId ){
-        reservationService.checkClientInOrOut(transactionId);
+    @PutMapping(path = "{transactionId}/check-in")
+    public void checkClientIn(@PathVariable("transactionId")String transactionId ){
+        reservationService.checkClientIn(transactionId);
+    }
+
+    @PutMapping(path = "{transactionId}/check-out")
+    public void checkClientOut(@PathVariable("transactionId")String transactionId ){
+        reservationService.checkClientOut(transactionId);
     }
     @GetMapping(path = "user/{userId}")
     public List<Reservation> findAllReservationsForUser(
