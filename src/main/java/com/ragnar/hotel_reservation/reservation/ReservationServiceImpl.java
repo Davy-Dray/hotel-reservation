@@ -5,6 +5,8 @@ import com.ragnar.hotel_reservation.exception.ReservationException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
 import com.ragnar.hotel_reservation.exception.ValidationException;
 import com.ragnar.hotel_reservation.notification.NotificationSenderService;
+import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistory;
+import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistoryService;
 import com.ragnar.hotel_reservation.room.Room;
 import com.ragnar.hotel_reservation.room.RoomService;
 import com.ragnar.hotel_reservation.room.RoomStatus;
@@ -12,6 +14,8 @@ import com.ragnar.hotel_reservation.user.User;
 import com.ragnar.hotel_reservation.user.UserService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
+
 import java.time.LocalDate;
 import java.time.format.DateTimeFormatter;
 import java.util.List;
@@ -25,7 +29,9 @@ public class ReservationServiceImpl implements ReservationService {
     private final ReservationRepository reservationRepository;
     private final UserService userService;
     private final RoomService roomService;
-    private  final NotificationSenderService notificationSenderService;
+    private final NotificationSenderService notificationSenderService;
+    private final ReservationHistoryService reservationHistoryService;
+
 
     @Override
     public Reservation findReservationById(Long id) {
@@ -51,7 +57,8 @@ public class ReservationServiceImpl implements ReservationService {
 
         if (isReservationAllowed(reservationRequest.roomId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(
-                    "Room is not available for the specified dates. Please choose another date or another room."
+                    "Room is not available for the specified dates. " +
+                            "Please choose another date or another room."
             );
         }
 
@@ -61,8 +68,13 @@ public class ReservationServiceImpl implements ReservationService {
         Reservation reservation = new Reservation(
                 checkInDate, checkOutDate, user, generateTransactionId(), room
         );
-
         reservationRepository.save(reservation);
+        ReservationHistory reservationHistory = new ReservationHistory(
+                reservation,
+                "RESERVATION"
+        );
+        reservationHistoryService.createReservationHistory(reservationHistory);
+
 
 //        notificationSenderService.sendBookingConfirmationSms(
 //                new  SmsTemplate(
@@ -85,37 +97,51 @@ public class ReservationServiceImpl implements ReservationService {
             throw new ValidationException("Check-in date must be before check-out date.");
         }
     }
+
     @Override
     public void checkClientIn(String transactionId) {
         Reservation reservation = findReservationByTransactionId(transactionId);
         boolean hasCheckedIn = reservation.isHasCheckedIn();
+        ReservationStatus reservationStatus = reservation.getStatus();
+
         Room reservedRoom = reservation.getReservedRoom();
-        if (!hasCheckedIn && reservation.getStatus()==ReservationStatus.PENDING) {
+        if (!hasCheckedIn && reservationStatus == ReservationStatus.PENDING) {
             reservation.setHasCheckedIn(true);
             reservation.setStatus(ReservationStatus.ACTIVE);
             reservedRoom.setRoomStatus(RoomStatus.OCCUPIED);
-        }else{
-           throw new ReservationException(
-                   "reservation [%s] ".formatted(reservation.getStatus().name())
-           );
+        } else {
+            throw new ReservationException(
+                    "reservation %s ".formatted(reservation.getStatus().name())
+            );
         }
         reservationRepository.save(reservation);
+        ReservationHistory reservationHistory = new ReservationHistory(
+                reservation,
+                "CHECK-IN"
+        );
+        reservationHistoryService.createReservationHistory(reservationHistory);
     }
 
     @Override
     public void checkClientOut(String reservationId) {
         Reservation reservation = findReservationByTransactionId(reservationId);
         Room reservedRoom = reservation.getReservedRoom();
-        if (reservation.getStatus()==ReservationStatus.ACTIVE) {
-            reservation.setHasCheckedIn(true);
+        ReservationStatus reservationStatus = reservation.getStatus();
+
+        if (reservationStatus == ReservationStatus.ACTIVE) {
             reservation.setStatus(ReservationStatus.COMPLETED);
             reservedRoom.setRoomStatus(RoomStatus.AVAILABLE);
-        }else{
+        } else {
             throw new ReservationException(
-                    "reservation [%s] ".formatted(reservation.getStatus().name())
+                    "reservation %s ".formatted(reservation.getStatus().name())
             );
         }
         reservationRepository.save(reservation);
+        ReservationHistory reservationHistory = new ReservationHistory(
+                reservation,
+                "CHECK-OUT"
+        );
+        reservationHistoryService.createReservationHistory(reservationHistory);
     }
 
     @Override
@@ -139,11 +165,12 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
-    public Reservation findReservationByTransactionId(String id) {
-        Optional<Reservation> reservation = reservationRepository.findReservationsByTransactionId(id);
+    public Reservation findReservationByTransactionId(String transactionId) {
+        Optional<Reservation> reservation =
+                reservationRepository.findReservationsByTransactionId(transactionId);
         if (reservation.isEmpty()) {
             throw new ResourceNotFoundException(
-                    "reservation with id [%s] not found".formatted(id)
+                    "reservation with id [%s] not found".formatted(transactionId)
             );
         }
         return reservation.get();
@@ -151,7 +178,8 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public Reservation findReservationByRoomNumber(int id) {
-        Optional<Reservation> reservation = reservationRepository.findReservationsByReservedRoom_RoomNumber(id);
+        Optional<Reservation> reservation =
+                reservationRepository.findReservationsByReservedRoom_RoomNumber(id);
         if (reservation.isEmpty()) {
             throw new ResourceNotFoundException(
                     "reservation with id [%s] not found".formatted(id)
@@ -171,20 +199,35 @@ public class ReservationServiceImpl implements ReservationService {
             );
         }
         Reservation reservation = optionalReservation.get();
-        if(reservation.getStatus()==ReservationStatus.PENDING){
+        ReservationStatus reservationStatus = reservation.getStatus();
+        if (reservationStatus == ReservationStatus.PENDING) {
             reservation.setStatus(ReservationStatus.CANCELLED);
-        }else {
+
+        } else {
             throw new ReservationException(
-                    "reservation [%s] ".formatted(reservation.getStatus().name())
+                    "reservation %s ".formatted(reservation.getStatus().name())
             );
         }
         reservationRepository.save(reservation);
+        ReservationHistory reservationHistory = new ReservationHistory(
+                reservation,
+                "CANCEL"
+        );
+        reservationHistoryService.createReservationHistory(reservationHistory);
+        //            notificationSenderService.sendBookingCancellationSms(
+//                    new SmsCancellationTemplate(
+//                            reservation.getUser().getFirstname(),
+//                            reservation.getUser().getPhoneNumber(),
+//                            reservation.getTransactionId()
+//                    )
+//            );
     }
 
     @Override
+    @Transactional
     public void updateReservation(Long id, ReservationUpdateRequest updateRequest) {
 
-        if(existsReservationById(id)){
+        if (existsReservationById(id)) {
             throw new ResourceNotFoundException(
                     "reservation with id [%s] not found".formatted(id)
             );
@@ -207,6 +250,11 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setCheckInDate(checkInDate);
         reservation.setCheckOutDate(checkOutDate);
         reservationRepository.save(reservation);
+        ReservationHistory reservationHistory = new ReservationHistory(
+                reservation,
+                "UPDATE"
+        );
+        reservationHistoryService.createReservationHistory(reservationHistory);
     }
 
     private String generateTransactionId() {
@@ -220,9 +268,9 @@ public class ReservationServiceImpl implements ReservationService {
         return String.format("%09d", transactionId);
     }
 
-    private boolean isReservationAllowed(Long roomId,LocalDate checkInDate, LocalDate checkOutDate) {
+    private boolean isReservationAllowed(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
         List<Reservation> overlappingReservations = reservationRepository
-                .findOverlappingReservationsForRoom(roomId,checkInDate, checkOutDate);
+                .findOverlappingReservationsForRoom(roomId, checkInDate, checkOutDate);
         return !overlappingReservations.isEmpty();
     }
 }

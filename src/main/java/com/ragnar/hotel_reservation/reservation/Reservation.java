@@ -15,6 +15,14 @@ import java.time.temporal.ChronoUnit;
 @Getter
 @Setter
 @NoArgsConstructor
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "reservation_id_unique",
+                        columnNames = "transactionId"
+                )
+        }
+)
 public class Reservation {
 
     @Id
@@ -44,7 +52,6 @@ public class Reservation {
 
     @Enumerated(EnumType.STRING)
     private ReservationStatus status;
-
     private double totalCharge;
     private String transactionId;
 

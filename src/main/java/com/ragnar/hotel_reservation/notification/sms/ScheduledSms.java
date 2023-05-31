@@ -62,13 +62,6 @@ public class ScheduledSms {
                 reservationRepository.findReservationsByCheckInDateAndStatus(yesterday);
         for (Reservation reservation : staleReservations) {
             reservationService.cancelReservation(reservation.getTransactionId());
-//            twilioSmsSenderService.sendSms(
-//                    new SmsNotification(
-//                            reservation.getUser().getPhoneNumber(),
-//                            "your reservation "+reservation.getTransactionId()+" has been cancelled"
-//                    )
-//            );
-
         }
 
     }

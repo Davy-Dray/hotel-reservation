@@ -50,8 +50,6 @@ public class RoomServiceImpl implements RoomService {
             return RoomType.valueOf(roomTypeName.toUpperCase());
     }
     private RoomStatus parseRoomStatus(String roomStatusName) {
-        
-
             return RoomStatus.valueOf(roomStatusName.toUpperCase());
     }
     @Override
