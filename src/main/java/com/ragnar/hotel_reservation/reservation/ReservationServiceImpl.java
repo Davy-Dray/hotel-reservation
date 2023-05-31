@@ -223,6 +223,7 @@ public class ReservationServiceImpl implements ReservationService {
     private boolean isReservationAllowed(Long roomId,LocalDate checkInDate, LocalDate checkOutDate) {
         List<Reservation> overlappingReservations = reservationRepository
                 .findOverlappingReservationsForRoom(roomId,checkInDate, checkOutDate);
+        String s = "";
         return !overlappingReservations.isEmpty();
     }
 }
