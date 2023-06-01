@@ -4,6 +4,7 @@ package com.ragnar.hotel_reservation.notification;
 import com.ragnar.hotel_reservation.notification.sms.template.SmsCancellationTemplate;
 import com.ragnar.hotel_reservation.notification.sms.template.SmsConfirmationTemplate;
 import com.ragnar.hotel_reservation.notification.sms.SmsNotification;
+import com.ragnar.hotel_reservation.notification.sms.template.SmsReminderTemplate;
 import com.ragnar.hotel_reservation.notification.sms.twilio.TwilioSmsSenderService;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
@@ -32,6 +33,17 @@ public class NotificationSenderService {
                          "your booking "+template.transactionId()+" " +
                          "has been cancelled.";
 
+        twilioSmsSenderService.sendSms(
+                new SmsNotification(
+                        template.clientNumber(),
+                        message
+                )
+        );
+    }
+
+    public void sendReminderSms(SmsReminderTemplate template){
+        String message = "Reminder!!! that your reservation "+ template.transactionId()
+                + "check-in date is tomorrow";
         twilioSmsSenderService.sendSms(
                 new SmsNotification(
                         template.clientNumber(),

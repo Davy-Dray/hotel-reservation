@@ -1,16 +1,23 @@
 package com.ragnar.hotel_reservation.room;
 
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
+import com.ragnar.hotel_reservation.reservation.Reservation;
+import com.ragnar.hotel_reservation.reservation.ReservationRepository;
+import com.ragnar.hotel_reservation.validation.InputValidation;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
+
+import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
+import java.util.stream.Collectors;
 
 @AllArgsConstructor
 @Service
 public class RoomServiceImpl implements RoomService {
 
     private final RoomRepository roomRepository;
+    private final ReservationRepository reservationRepository;
 
     @Override
     public Room findRoomById(Long id) {
@@ -73,5 +80,27 @@ public class RoomServiceImpl implements RoomService {
         roomRepository.save(room);
 
     }
+
+    @Override
+    public List<Room> findAvailableRooms(FindRoomRequest findRoomRequest) {
+        LocalDate localDateCheckin =
+                InputValidation.parseLocalDate(findRoomRequest.checkIn());
+        LocalDate localDateCheckOut =
+                InputValidation.parseLocalDate(findRoomRequest.checkOut());
+        InputValidation.validateReservationDates(localDateCheckin, localDateCheckOut);
+
+        List<Reservation> overlappingReservations =
+                reservationRepository.findOverlappingReservations(
+                        localDateCheckin,
+                        localDateCheckOut
+                );
+        List<Long> reservedRoomIds = overlappingReservations.stream()
+                .map(reservation -> reservation.getReservedRoom().getId())
+                .collect(Collectors.toList());
+
+        return roomRepository.findAvailableRoomsExcept(reservedRoomIds);
+    }
+
+
 
 }

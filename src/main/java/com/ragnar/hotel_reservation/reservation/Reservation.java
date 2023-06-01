@@ -44,7 +44,8 @@ public class Reservation {
     private LocalDate createdAt;
     @Column(nullable = false)
     private boolean hasCheckedIn;
-    @OneToOne
+
+    @ManyToOne
     private User user;
 
     @OneToOne(cascade = CascadeType.ALL)

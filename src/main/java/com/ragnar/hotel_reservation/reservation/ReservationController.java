@@ -1,5 +1,6 @@
 package com.ragnar.hotel_reservation.reservation;
 
+import com.ragnar.hotel_reservation.room.Room;
 import lombok.AllArgsConstructor;
 import org.springframework.web.bind.annotation.*;
 import java.util.List;
@@ -58,4 +59,10 @@ public class ReservationController {
 
         reservationService.updateReservation(id,updateRequest);
     }
+
+    @GetMapping(path = "reserved")
+    public List<Room> findAllReservedRooms(){
+       return reservationService.findAllReservedRooms();
+    }
+
 }

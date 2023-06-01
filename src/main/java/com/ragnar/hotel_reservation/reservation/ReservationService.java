@@ -1,5 +1,7 @@
 package com.ragnar.hotel_reservation.reservation;
 
+import com.ragnar.hotel_reservation.room.Room;
+
 import java.util.List;
 
 public interface ReservationService {
@@ -24,6 +26,8 @@ public interface ReservationService {
     Reservation findReservationByTransactionId(String transactionId);
 
     Reservation findReservationByRoomNumber(int id);
+
+    List<Room>findAllReservedRooms();
 
     void cancelReservation(String transactionId);
 

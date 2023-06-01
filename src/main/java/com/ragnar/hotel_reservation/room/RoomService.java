@@ -16,4 +16,6 @@ public interface RoomService {
     boolean existsRoomWithId(Long id);
 
     void upDateRoom(RoomUpdateRequest request,Long roomId);
+
+    List<Room>findAvailableRooms(FindRoomRequest findRoomRequest);
 }

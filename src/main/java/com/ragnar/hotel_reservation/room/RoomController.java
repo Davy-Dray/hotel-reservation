@@ -32,6 +32,9 @@ public class RoomController {
     public void updateRoom(@PathVariable("roomId") Long roomId,
                            @RequestBody RoomUpdateRequest roomUpdateRequest){
         roomService.upDateRoom(roomUpdateRequest,roomId);
-
+    }
+    @GetMapping(path = "available" )
+    public List<Room> findAvailableRooms(@RequestBody FindRoomRequest findRoomRequest){
+      return roomService.findAvailableRooms(findRoomRequest);
     }
 }

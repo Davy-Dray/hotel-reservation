@@ -3,8 +3,8 @@ package com.ragnar.hotel_reservation.reservation;
 import com.ragnar.hotel_reservation.exception.DuplicateResourceException;
 import com.ragnar.hotel_reservation.exception.ReservationException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
-import com.ragnar.hotel_reservation.exception.ValidationException;
 import com.ragnar.hotel_reservation.notification.NotificationSenderService;
+import com.ragnar.hotel_reservation.notification.sms.template.SmsCancellationTemplate;
 import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistory;
 import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistoryService;
 import com.ragnar.hotel_reservation.room.Room;
@@ -12,12 +12,12 @@ import com.ragnar.hotel_reservation.room.RoomService;
 import com.ragnar.hotel_reservation.room.RoomStatus;
 import com.ragnar.hotel_reservation.user.User;
 import com.ragnar.hotel_reservation.user.UserService;
+import com.ragnar.hotel_reservation.validation.InputValidation;
 import lombok.AllArgsConstructor;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDate;
-import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.concurrent.ThreadLocalRandom;
@@ -51,9 +51,9 @@ public class ReservationServiceImpl implements ReservationService {
 
     @Override
     public void createReservation(ReservationRequest reservationRequest) {
-        LocalDate checkInDate = parseLocalDate(reservationRequest.checkInDate());
-        LocalDate checkOutDate = parseLocalDate(reservationRequest.checkOutDate());
-        validateReservationDates(checkInDate, checkOutDate);
+        LocalDate checkInDate = InputValidation.parseLocalDate(reservationRequest.checkInDate());
+        LocalDate checkOutDate = InputValidation.parseLocalDate(reservationRequest.checkOutDate());
+        InputValidation.validateReservationDates(checkInDate, checkOutDate);
 
         if (isReservationAllowed(reservationRequest.roomId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(
@@ -75,7 +75,6 @@ public class ReservationServiceImpl implements ReservationService {
         );
         reservationHistoryService.createReservationHistory(reservationHistory);
 
-
 //        notificationSenderService.sendBookingConfirmationSms(
 //                new  SmsTemplate(
 //                        user.getFirstname(),
@@ -87,16 +86,6 @@ public class ReservationServiceImpl implements ReservationService {
 //        );
     }
 
-    private LocalDate parseLocalDate(String date) {
-        DateTimeFormatter formatter = DateTimeFormatter.ofPattern("d/M/yyyy");
-        return LocalDate.parse(date, formatter);
-    }
-
-    private void validateReservationDates(LocalDate checkInDate, LocalDate checkOutDate) {
-        if (!checkInDate.isBefore(checkOutDate)) {
-            throw new ValidationException("Check-in date must be before check-out date.");
-        }
-    }
 
     @Override
     public void checkClientIn(String transactionId) {
@@ -189,6 +178,11 @@ public class ReservationServiceImpl implements ReservationService {
     }
 
     @Override
+    public List<Room> findAllReservedRooms() {
+        return reservationRepository.findAllReservedRooms();
+    }
+
+    @Override
     public void cancelReservation(String transactionId) {
         Optional<Reservation> optionalReservation =
                 reservationRepository.findReservationsByTransactionId(transactionId);
@@ -211,16 +205,16 @@ public class ReservationServiceImpl implements ReservationService {
         reservationRepository.save(reservation);
         ReservationHistory reservationHistory = new ReservationHistory(
                 reservation,
-                "CANCEL"
+                "CANCELLATION"
         );
         reservationHistoryService.createReservationHistory(reservationHistory);
-        //            notificationSenderService.sendBookingCancellationSms(
-//                    new SmsCancellationTemplate(
-//                            reservation.getUser().getFirstname(),
-//                            reservation.getUser().getPhoneNumber(),
-//                            reservation.getTransactionId()
-//                    )
-//            );
+//        notificationSenderService.sendBookingCancellationSms(
+//                new SmsCancellationTemplate(
+//                        reservation.getUser().getFirstname(),
+//                        reservation.getUser().getPhoneNumber(),
+//                        reservation.getTransactionId()
+//                )
+//        );
     }
 
     @Override
@@ -236,9 +230,9 @@ public class ReservationServiceImpl implements ReservationService {
         reservation.setStatus(ReservationStatus.CANCELLED);
         reservationRepository.save(reservation);
 
-        LocalDate checkInDate = parseLocalDate(updateRequest.checkInDate());
-        LocalDate checkOutDate = parseLocalDate(updateRequest.checkOutDate());
-        validateReservationDates(checkInDate, checkOutDate);
+        LocalDate checkInDate = InputValidation.parseLocalDate(updateRequest.checkInDate());
+        LocalDate checkOutDate = InputValidation.parseLocalDate(updateRequest.checkOutDate());
+        InputValidation.validateReservationDates(checkInDate, checkOutDate);
 
         if (isReservationAllowed(reservation.getReservedRoom().getId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(

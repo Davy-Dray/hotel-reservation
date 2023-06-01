@@ -1,5 +1,6 @@
 package com.ragnar.hotel_reservation.reservation;
 
+import com.ragnar.hotel_reservation.room.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
@@ -13,7 +14,8 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     Optional<Reservation> findReservationsByTransactionId(String transactionId);
     boolean existsByTransactionId(String transactionId);
     Optional<Reservation>findReservationsByReservedRoom_RoomNumber(int id);
-    @Query("SELECT r FROM Reservation r WHERE r.reservedRoom.id = :roomId " +
+    @Query(
+            "SELECT r FROM Reservation r WHERE r.reservedRoom.id = :roomId " +
             "AND r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate " +
             "AND r.status != 'CANCELLED'  AND r.status !='COMPLETED'"
     )
@@ -23,12 +25,26 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
             @Param("checkOutDate") LocalDate checkOutDate
     );
 
+    @Query(
+            "SELECT r FROM Reservation r WHERE r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate " +
+            " AND r.status != 'CANCELLED'  AND r.status !='COMPLETED'"
+    )
+    List<Reservation> findOverlappingReservations(
+            @Param("checkInDate") LocalDate checkInDate,
+            @Param("checkOutDate") LocalDate checkOutDate
+    );
+
     @Query("SELECT r FROM Reservation r WHERE r.checkInDate = :tomorrow")
     List<Reservation> findByCheckInDateTomorrow(LocalDate tomorrow);
-
 
     @Query("SELECT r FROM Reservation r WHERE r.checkInDate = :yesterday AND r.status = 'PENDING'")
     List<Reservation> findReservationsByCheckInDateAndStatus(
             @Param("yesterday") LocalDate yesterday
     );
+
+    @Query(
+            "SELECT r.reservedRoom FROM Reservation r WHERE r.checkOutDate > CURRENT_DATE " +
+            "AND r.status !='CANCELLED'AND r.status !='COMPLETED'"
+    )
+    List<Room> findAllReservedRooms();
 }
