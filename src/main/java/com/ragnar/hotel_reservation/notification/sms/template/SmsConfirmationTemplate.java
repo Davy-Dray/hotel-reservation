@@ -7,6 +7,8 @@ public record SmsConfirmationTemplate(
         String clientNumber,
         LocalDate checkInDate,
         String roomType,
-        String transactionId
+        String transactionId,
+
+        int roomNo
 ) {
 }

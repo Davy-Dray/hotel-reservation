@@ -4,7 +4,7 @@ import com.ragnar.hotel_reservation.exception.DuplicateResourceException;
 import com.ragnar.hotel_reservation.exception.ReservationException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
 import com.ragnar.hotel_reservation.notification.NotificationSenderService;
-import com.ragnar.hotel_reservation.notification.sms.template.SmsCancellationTemplate;
+import com.ragnar.hotel_reservation.notification.sms.template.SmsConfirmationTemplate;
 import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistory;
 import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistoryService;
 import com.ragnar.hotel_reservation.room.Room;
@@ -76,12 +76,13 @@ public class ReservationServiceImpl implements ReservationService {
         reservationHistoryService.createReservationHistory(reservationHistory);
 
 //        notificationSenderService.sendBookingConfirmationSms(
-//                new  SmsTemplate(
+//                new SmsConfirmationTemplate(
 //                        user.getFirstname(),
 //                        user.getPhoneNumber(),
 //                        checkInDate,
 //                        room.getRoomType().toString(),
-//                        reservation.getTransactionId()
+//                        reservation.getTransactionId(),
+//                        reservation.getReservedRoom().getRoomNumber()
 //                )
 //        );
     }
@@ -122,7 +123,7 @@ public class ReservationServiceImpl implements ReservationService {
             reservedRoom.setRoomStatus(RoomStatus.AVAILABLE);
         } else {
             throw new ReservationException(
-                    "reservation %s ".formatted(reservation.getStatus().name())
+                    "reservation is %s ".formatted(reservation.getStatus().name())
             );
         }
         reservationRepository.save(reservation);

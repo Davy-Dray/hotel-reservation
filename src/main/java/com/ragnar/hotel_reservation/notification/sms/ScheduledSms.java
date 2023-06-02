@@ -2,7 +2,6 @@ package com.ragnar.hotel_reservation.notification.sms;
 
 import com.ragnar.hotel_reservation.notification.NotificationSenderService;
 import com.ragnar.hotel_reservation.notification.sms.template.SmsReminderTemplate;
-import com.ragnar.hotel_reservation.notification.sms.twilio.TwilioSmsSenderService;
 import com.ragnar.hotel_reservation.reservation.Reservation;
 import com.ragnar.hotel_reservation.reservation.ReservationRepository;
 import com.ragnar.hotel_reservation.reservation.ReservationService;
@@ -40,7 +39,6 @@ public class ScheduledSms {
             }
         }
     }
-
     private void sendReminderNotification(Reservation reservation) {
        notificationSenderService.sendReminderSms(
               new SmsReminderTemplate(
