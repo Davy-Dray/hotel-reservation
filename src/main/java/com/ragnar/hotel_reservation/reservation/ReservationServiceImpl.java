@@ -77,16 +77,16 @@ public class ReservationServiceImpl implements ReservationService {
         );
         reservationHistoryService.createReservationHistory(reservationHistory);
 
-//        notificationSenderService.sendBookingConfirmationSms(
-//                new SmsConfirmationTemplate(
-//                        user.getFirstname(),
-//                        user.getPhoneNumber(),
-//                        checkInDate,
-//                        room.getRoomType().toString(),
-//                        reservation.getTransactionId(),
-//                        reservation.getReservedRoom().getRoomNumber()
-//                )
-//        );
+        notificationSenderService.sendBookingConfirmationSms(
+                new SmsConfirmationTemplate(
+                        user.getFirstname(),
+                        user.getPhoneNumber(),
+                        checkInDate,
+                        room.getRoomType().toString(),
+                        reservation.getTransactionId(),
+                        reservation.getReservedRoom().getRoomNumber()
+                )
+        );
     }
 
 
