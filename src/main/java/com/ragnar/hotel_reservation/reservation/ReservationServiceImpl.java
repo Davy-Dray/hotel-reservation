@@ -4,6 +4,7 @@ import com.ragnar.hotel_reservation.exception.DuplicateResourceException;
 import com.ragnar.hotel_reservation.exception.ReservationException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
 import com.ragnar.hotel_reservation.notification.NotificationSenderService;
+import com.ragnar.hotel_reservation.notification.sms.template.SmsCancellationTemplate;
 import com.ragnar.hotel_reservation.notification.sms.template.SmsConfirmationTemplate;
 import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistory;
 import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistoryService;
@@ -57,11 +58,12 @@ public class ReservationServiceImpl implements ReservationService {
 
         if (isReservationAllowed(reservationRequest.roomId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(
-                    "Room is not available for the specified dates. " +
-                            "Please choose another date or another room."
+                    """
+                    Room is not available for the specified dates.\s
+                    Please pick other dates or another room
+                    """
             );
         }
-
         User user = userService.findUserById(reservationRequest.userId());
         Room room = roomService.findRoomById(reservationRequest.roomId());
 
@@ -101,7 +103,7 @@ public class ReservationServiceImpl implements ReservationService {
             reservedRoom.setRoomStatus(RoomStatus.OCCUPIED);
         } else {
             throw new ReservationException(
-                    "reservation %s ".formatted(reservation.getStatus().name())
+                    "reservation %s ".formatted(reservation.getStatus())
             );
         }
         reservationRepository.save(reservation);
@@ -123,7 +125,7 @@ public class ReservationServiceImpl implements ReservationService {
             reservedRoom.setRoomStatus(RoomStatus.AVAILABLE);
         } else {
             throw new ReservationException(
-                    "reservation is %s ".formatted(reservation.getStatus().name())
+                    "reservation is %s ".formatted(reservation.getStatus())
             );
         }
         reservationRepository.save(reservation);
@@ -209,13 +211,13 @@ public class ReservationServiceImpl implements ReservationService {
                 "CANCELLATION"
         );
         reservationHistoryService.createReservationHistory(reservationHistory);
-//        notificationSenderService.sendBookingCancellationSms(
-//                new SmsCancellationTemplate(
-//                        reservation.getUser().getFirstname(),
-//                        reservation.getUser().getPhoneNumber(),
-//                        reservation.getTransactionId()
-//                )
-//        );
+        notificationSenderService.sendBookingCancellationSms(
+                new SmsCancellationTemplate(
+                        reservation.getUser().getFirstname(),
+                        reservation.getUser().getPhoneNumber(),
+                        reservation.getTransactionId()
+                )
+        );
     }
 
     @Override
@@ -237,8 +239,10 @@ public class ReservationServiceImpl implements ReservationService {
 
         if (isReservationAllowed(reservation.getReservedRoom().getId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(
-                    "Room is not available for the specified dates." +
-                            " Please choose another date or another room."
+                    """
+                    Room is not available for the specified dates.\s
+                    Please pick other dates or another room
+                    """
             );
         }
 
@@ -258,14 +262,25 @@ public class ReservationServiceImpl implements ReservationService {
         boolean exists;
         do {
             transactionId = random.nextInt(1_000_000_000);
-            exists = reservationRepository.existsByTransactionId(String.format("%09d", transactionId));
+            exists = reservationRepository.existsByTransactionId(
+                    String.format(
+                            "%09d",
+                            transactionId
+                    ));
         } while (exists);
         return String.format("%09d", transactionId);
     }
 
-    private boolean isReservationAllowed(Long roomId, LocalDate checkInDate, LocalDate checkOutDate) {
-        List<Reservation> overlappingReservations = reservationRepository
-                .findOverlappingReservationsForRoom(roomId, checkInDate, checkOutDate);
+    private boolean isReservationAllowed(
+            Long roomId, LocalDate checkInDate, LocalDate checkOutDate
+    ) {
+        List<Reservation> overlappingReservations =
+                reservationRepository
+                        .findOverlappingReservationsForRoom(
+                                roomId,
+                                checkInDate,
+                                checkOutDate
+                        );
         return !overlappingReservations.isEmpty();
     }
 }
