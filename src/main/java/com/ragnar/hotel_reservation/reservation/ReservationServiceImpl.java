@@ -77,16 +77,16 @@ public class ReservationServiceImpl implements ReservationService {
         );
         reservationHistoryService.createReservationHistory(reservationHistory);
 
-        notificationSenderService.sendBookingConfirmationSms(
-                new SmsConfirmationTemplate(
-                        user.getFirstname(),
-                        user.getPhoneNumber(),
-                        checkInDate,
-                        room.getRoomType().toString(),
-                        reservation.getTransactionId(),
-                        reservation.getReservedRoom().getRoomNumber()
-                )
-        );
+//        notificationSenderService.sendBookingConfirmationSms(
+//                new SmsConfirmationTemplate(
+//                        user.getFirstname(),
+//                        user.getPhoneNumber(),
+//                        checkInDate,
+//                        room.getRoomType().toString(),
+//                        reservation.getTransactionId(),
+//                        reservation.getReservedRoom().getRoomNumber()
+//                )
+//        );
     }
 
 
@@ -211,13 +211,13 @@ public class ReservationServiceImpl implements ReservationService {
                 "CANCELLATION"
         );
         reservationHistoryService.createReservationHistory(reservationHistory);
-        notificationSenderService.sendBookingCancellationSms(
-                new SmsCancellationTemplate(
-                        reservation.getUser().getFirstname(),
-                        reservation.getUser().getPhoneNumber(),
-                        reservation.getTransactionId()
-                )
-        );
+//        notificationSenderService.sendBookingCancellationSms(
+//                new SmsCancellationTemplate(
+//                        reservation.getUser().getFirstname(),
+//                        reservation.getUser().getPhoneNumber(),
+//                        reservation.getTransactionId()
+//                )
+//        );
     }
 
     @Override
