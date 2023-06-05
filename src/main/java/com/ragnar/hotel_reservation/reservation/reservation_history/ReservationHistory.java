@@ -18,12 +18,13 @@ import java.time.LocalDateTime;
 public class ReservationHistory {
     @Id
     @SequenceGenerator(
-            sequenceName = "reservationHistory_id_sequence",
-            name = "reservationHistory_id_sequence"
+            sequenceName = "reservationHistory_id_seq",
+            name = "reservationHistory_id_seq",
+            allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "reservationHistory_id_sequence"
+            generator = "reservationHistory_id_seq"
     )
     private Long id;
 

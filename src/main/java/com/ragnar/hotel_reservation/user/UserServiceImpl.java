@@ -28,6 +28,11 @@ public class UserServiceImpl implements UserService{
     }
     @Override
     public void createUser(UserRegistrationRequest userRegistrationRequest) {
+        if (existsByEmail(userRegistrationRequest.email())) {
+            throw new DuplicateResourceException(
+                    "email already taken"
+            );
+        }
         User user = new User(
                 userRegistrationRequest.email(),
                 userRegistrationRequest.phoneNumber(),
@@ -36,8 +41,8 @@ public class UserServiceImpl implements UserService{
                 userRegistrationRequest.lastname()
         );
          userRepository.save(user);
-    }
 
+}
     @Override
     public void deleteUserById(Long id) {
        if (!existById(id)){

@@ -11,16 +11,25 @@ import lombok.Setter;
 @NoArgsConstructor
 @Getter
 @Setter
+@Table(
+        uniqueConstraints = {
+                @UniqueConstraint(
+                        name = "room_number_unique",
+                        columnNames = "roomNumber"
+                )
+        }
+)
 public class Room {
 
     @Id
     @SequenceGenerator(
-            sequenceName = "room_id_sequence",
-            name = "room_id_sequence"
+            sequenceName = "room_id_seq",
+            name = "room_id_seq",
+            allocationSize = 1
     )
     @GeneratedValue(
             strategy = GenerationType.SEQUENCE,
-            generator = "room_id_sequence"
+            generator = "room_id_seq"
     )
     private Long id;
 

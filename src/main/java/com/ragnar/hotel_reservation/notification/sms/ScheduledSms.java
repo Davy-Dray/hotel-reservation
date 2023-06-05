@@ -26,7 +26,7 @@ public class ScheduledSms {
      * sends notification to users whose check in date is the next day
      */
     // @Scheduled(cron= "0 0/30 8-13 * * *")
-    @Scheduled(cron = "0 * * * * *")
+   // @Scheduled(cron = "0 * * * * *")
     public void sendBookingReminderSms() {
         LocalDate tomorrow = LocalDate.now().plusDays(1);
         List<Reservation> allReservations =
@@ -53,7 +53,7 @@ public class ScheduledSms {
      * sends notification to users whose reservations where cancelled
      */
     // @Scheduled(cron= "0 0/30 8-13 * * *")
-    @Scheduled(cron = "0 * * * * *")
+   // @Scheduled(cron = "0 * * * * *")
     public void cancelStaleReservations() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         List<Reservation> staleReservations =
