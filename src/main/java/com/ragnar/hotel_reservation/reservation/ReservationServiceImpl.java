@@ -1,6 +1,7 @@
 package com.ragnar.hotel_reservation.reservation;
 
 import com.ragnar.hotel_reservation.exception.DuplicateResourceException;
+import com.ragnar.hotel_reservation.exception.RequestValidationException;
 import com.ragnar.hotel_reservation.exception.ReservationException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
 import com.ragnar.hotel_reservation.notification.NotificationSenderService;
@@ -238,6 +239,14 @@ public class ReservationServiceImpl implements ReservationService {
         LocalDate checkInDate = InputValidation.parseLocalDate(updateRequest.checkInDate());
         LocalDate checkOutDate = InputValidation.parseLocalDate(updateRequest.checkOutDate());
         InputValidation.validateReservationDates(checkInDate, checkOutDate);
+
+        System.out.println("new"+checkInDate);
+        System.out.println("old"+reservation.getCheckInDate());
+
+        if (checkInDate.equals(reservation.getCheckInDate())) {
+            throw new RequestValidationException("no data changes found");
+
+        }
 
         reservation.setStatus(ReservationStatus.CANCELLED);
 
