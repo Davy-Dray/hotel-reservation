@@ -4,20 +4,28 @@ import com.ragnar.hotel_reservation.room.Room;
 import org.springframework.data.jpa.repository.JpaRepository;
 import org.springframework.data.jpa.repository.Query;
 import org.springframework.data.repository.query.Param;
+
 import java.time.LocalDate;
 import java.util.List;
 import java.util.Optional;
 
 public interface ReservationRepository extends JpaRepository<Reservation, Long> {
-    Optional<Reservation>findReservationById(Long reservationId);
+    Optional<Reservation> findReservationById(Long reservationId);
+
     List<Reservation> findReservationsByUserId(Long userId);
+
     Optional<Reservation> findReservationsByTransactionId(String transactionId);
+
     boolean existsByTransactionId(String transactionId);
-    Optional<Reservation>findReservationsByReservedRoom_RoomNumber(int id);
+
+    Optional<Reservation> findReservationsByReservedRoom_RoomNumber(int id);
+
     @Query(
-            "SELECT r FROM Reservation r WHERE r.reservedRoom.id = :roomId " +
-            "AND r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate " +
-            "AND r.status != 'CANCELLED'  AND r.status !='COMPLETED'"
+                    """
+                    SELECT r FROM Reservation r WHERE r.reservedRoom.id = :roomId
+                    AND r.checkOutDate >= :checkInDate AND r.checkInDate < :checkOutDate
+                    AND r.status != 'CANCELLED'  AND r.status !='COMPLETED'
+                    """
     )
     List<Reservation> findOverlappingReservationsForRoom(
             @Param("roomId") Long roomId,
@@ -26,8 +34,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     );
 
     @Query(
-            "SELECT r FROM Reservation r WHERE r.checkOutDate > :checkInDate AND r.checkInDate < :checkOutDate " +
-            " AND r.status != 'CANCELLED'  AND r.status !='COMPLETED'"
+            """
+                    SELECT r FROM Reservation r
+                    WHERE r.checkOutDate > :checkInDate
+                    AND r.checkInDate < :checkOutDate
+                    AND r.status != 'CANCELLED'
+                    AND r.status != 'COMPLETED'
+                    """
     )
     List<Reservation> findOverlappingReservations(
             @Param("checkInDate") LocalDate checkInDate,
@@ -43,8 +56,13 @@ public interface ReservationRepository extends JpaRepository<Reservation, Long> 
     );
 
     @Query(
-            "SELECT r.reservedRoom FROM Reservation r WHERE r.checkOutDate > CURRENT_DATE " +
-            "AND r.status !='CANCELLED'AND r.status !='COMPLETED'"
+                   """
+                    SELECT r.reservedRoom
+                    FROM Reservation r
+                    WHERE r.checkOutDate > CURRENT_DATE
+                    AND r.status != 'CANCELLED'
+                    AND r.status != 'COMPLETED'
+                    """
     )
     List<Room> findAllReservedRooms();
 }

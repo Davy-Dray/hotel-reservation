@@ -4,8 +4,6 @@ import com.ragnar.hotel_reservation.exception.DuplicateResourceException;
 import com.ragnar.hotel_reservation.exception.ReservationException;
 import com.ragnar.hotel_reservation.exception.ResourceNotFoundException;
 import com.ragnar.hotel_reservation.notification.NotificationSenderService;
-import com.ragnar.hotel_reservation.notification.sms.template.SmsCancellationTemplate;
-import com.ragnar.hotel_reservation.notification.sms.template.SmsConfirmationTemplate;
 import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistory;
 import com.ragnar.hotel_reservation.reservation.reservation_history.ReservationHistoryService;
 import com.ragnar.hotel_reservation.room.Room;
@@ -59,9 +57,9 @@ public class ReservationServiceImpl implements ReservationService {
         if (isReservationAllowed(reservationRequest.roomId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(
                     """
-                    Room is not available for the specified dates.\s
-                    Please pick other dates or another room
-                    """
+                            Room is not available for the specified dates.\s
+                            Please pick other dates or another room
+                            """
             );
         }
         User user = userService.findUserById(reservationRequest.userId());
@@ -223,31 +221,39 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional
     public void updateReservation(Long id, ReservationUpdateRequest updateRequest) {
-
         if (existsReservationById(id)) {
             throw new ResourceNotFoundException(
                     "reservation with id [%s] not found".formatted(id)
             );
         }
         Reservation reservation = findReservationById(id);
-        reservation.setStatus(ReservationStatus.CANCELLED);
-        reservationRepository.save(reservation);
+        ReservationStatus reservationStatus = reservation.getStatus();
+        if (reservationStatus != ReservationStatus.PENDING) {
+
+            throw new ReservationException(
+                    "reservation is %s ".formatted(reservation.getStatus().name())
+            );
+        }
 
         LocalDate checkInDate = InputValidation.parseLocalDate(updateRequest.checkInDate());
         LocalDate checkOutDate = InputValidation.parseLocalDate(updateRequest.checkOutDate());
         InputValidation.validateReservationDates(checkInDate, checkOutDate);
 
+        reservation.setStatus(ReservationStatus.CANCELLED);
+
         if (isReservationAllowed(reservation.getReservedRoom().getId(), checkInDate, checkOutDate)) {
             throw new DuplicateResourceException(
-                    """
-                    Room is not available for the specified dates.\s
-                    Please pick other dates or another room
-                    """
+                           """
+                            Room is not available for the specified dates.
+                            Please pick other dates or another room
+                            """
             );
         }
 
         reservation.setCheckInDate(checkInDate);
         reservation.setCheckOutDate(checkOutDate);
+        reservation.setStatus(ReservationStatus.PENDING);
+
         reservationRepository.save(reservation);
         ReservationHistory reservationHistory = new ReservationHistory(
                 reservation,
@@ -255,6 +261,7 @@ public class ReservationServiceImpl implements ReservationService {
         );
         reservationHistoryService.createReservationHistory(reservationHistory);
     }
+
 
     private String generateTransactionId() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
