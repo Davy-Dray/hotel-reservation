@@ -246,7 +246,7 @@ public class ReservationServiceImpl implements ReservationService {
                            """
                             Room is not available for the specified dates.
                             Please pick other dates or another room
-                            """
+                             """
             );
         }
 
