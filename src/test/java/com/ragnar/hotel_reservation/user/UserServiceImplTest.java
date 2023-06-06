@@ -87,7 +87,6 @@ class UserServiceImplTest {
         // When
         underTest.createUser(request);
 
-        // Verify that the save method was called with the expected User object
         ArgumentCaptor<User> userCaptor = ArgumentCaptor.forClass(User.class);
         verify(userRepository).save(userCaptor.capture());
         User capturedUser = userCaptor.getValue();
@@ -283,10 +282,8 @@ class UserServiceImplTest {
         @Test
         void updateUser_ThrowsExceptionWhenPhoneNumberAlreadyTaken() {
 
-            // Create a test user ID
             Long userId = 1L;
 
-            // Create a test User object
             User existingUser = new User(
                     userId,
                     "test@example.com",
@@ -296,7 +293,6 @@ class UserServiceImplTest {
                     "Doe"
             );
 
-            // Create a UserUpdateRequest with test data
             UserUpdateRequest updateRequest = new UserUpdateRequest(
                     "jermain",
                     "cole",

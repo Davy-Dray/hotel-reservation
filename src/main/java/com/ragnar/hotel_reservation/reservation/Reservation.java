@@ -47,6 +47,7 @@ public class Reservation {
     private boolean hasCheckedIn;
 
     @ManyToOne
+    @JoinColumn(name = "user_id")
     private User user;
 
     @OneToOne(cascade = CascadeType.ALL)
