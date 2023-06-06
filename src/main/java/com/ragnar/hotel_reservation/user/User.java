@@ -42,10 +42,10 @@ public class User {
     private String firstname;
     private String lastname;
 
-    @JsonIgnore
-    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
-    @JoinColumn(name = "reservation_id")
-    private Set<Reservation>userReservations;
+//    @JsonIgnore
+//    @OneToMany(cascade = CascadeType.ALL, orphanRemoval = true)
+//    @JoinColumn(name = "reservation_id")
+//    private Set<Reservation>userReservations;
 
     public User(String email,
                 String phoneNumber,
@@ -53,6 +53,15 @@ public class User {
                 String firstname,
                 String lastname
     ) {
+        this.email = email;
+        this.phoneNumber = phoneNumber;
+        this.password = password;
+        this.firstname = firstname;
+        this.lastname = lastname;
+    }
+
+    public User(Long id, String email, String phoneNumber, String password, String firstname, String lastname) {
+        this.id = id;
         this.email = email;
         this.phoneNumber = phoneNumber;
         this.password = password;

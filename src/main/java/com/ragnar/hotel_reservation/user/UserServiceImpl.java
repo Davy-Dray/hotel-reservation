@@ -8,10 +8,14 @@ import java.util.List;
 import java.util.Optional;
 
 @Service
-@AllArgsConstructor
 public class UserServiceImpl implements UserService{
 
     private final UserRepository userRepository;
+
+    public UserServiceImpl(UserRepository userRepository) {
+        this.userRepository = userRepository;
+    }
+
     @Override
     public User findUserById(Long id) {
         Optional<User> user = userRepository.findUserById(id);
@@ -52,6 +56,8 @@ public class UserServiceImpl implements UserService{
        }
       userRepository.deleteById(id);
     }
+
+
 
     @Override
     public void updateUser(Long id, UserUpdateRequest updateRequest) {

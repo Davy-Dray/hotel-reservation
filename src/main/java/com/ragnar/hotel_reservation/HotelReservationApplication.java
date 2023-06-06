@@ -14,18 +14,18 @@ public class HotelReservationApplication implements CommandLineRunner {
         SpringApplication.run(HotelReservationApplication.class, args);
     }
 
-    @Autowired
-    UserService userService;
+//    @Autowired
+//    UserService userService;
 
     @Override
     public void run(String... args) {
-        userService.createUser(
-                new UserRegistrationRequest(
-                "David",
-                "Egbedina",
-                "david.egbedina@gmail.com",
-                "dray@gmail.com",
-                "08050569858"
-        ));
+//        userService.createUser(
+//                new UserRegistrationRequest(
+//                "David",
+//                "Egbedina",
+//                "david.egbedina@gmail.com",
+//                "dray@gmail.com",
+//                "08050569858"
+//        ));
     }
 }
