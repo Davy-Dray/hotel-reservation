@@ -18,9 +18,6 @@ class UserRepositoryTest {
     @Autowired
     private UserRepository underTest;
 
-    @BeforeEach
-    void setUp() {
-    }
 
     @Test
     void findUserById() {

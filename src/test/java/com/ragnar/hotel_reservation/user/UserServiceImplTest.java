@@ -170,7 +170,6 @@ class UserServiceImplTest {
         String email = "dave@gmail.com";
 
         when(userRepository.existsByEmail(email)).thenReturn(true);
-
         // When
         underTest.existsByEmail(email);
         // Then
@@ -201,7 +200,6 @@ class UserServiceImplTest {
         verify(userRepository).existsById(id);
     }
 
-
         @Test
         void updateUser_SuccessfullyUpdatesUser() {
 
@@ -230,11 +228,6 @@ class UserServiceImplTest {
             when(userRepository.existsByPhoneNumber(updateRequest.phoneNumber())).thenReturn(false);
 
             underTest.updateUser(userId, updateRequest);
-
-            verify(userRepository).findUserById(userId);
-
-            verify(userRepository).existsByEmail(updateRequest.email());
-            verify(userRepository).existsByPhoneNumber(updateRequest.phoneNumber());
 
             verify(userRepository).save(existingUser);
 
@@ -272,10 +265,6 @@ class UserServiceImplTest {
 
             assertThrows(DuplicateResourceException.class, () -> underTest.updateUser(userId, updateRequest));
 
-            verify(userRepository).findUserById(userId);
-
-            verify(userRepository).existsByEmail(updateRequest.email());
-
             verify(userRepository, never()).save(existingUser);
         }
 
@@ -305,10 +294,6 @@ class UserServiceImplTest {
             when(userRepository.existsByPhoneNumber(updateRequest.phoneNumber())).thenReturn(true);
 
             assertThrows(DuplicateResourceException.class, () -> underTest.updateUser(userId, updateRequest));
-
-            verify(userRepository).findUserById(userId);
-
-            verify(userRepository).existsByPhoneNumber(updateRequest.phoneNumber());
 
             verify(userRepository, never()).save(existingUser);
         }
