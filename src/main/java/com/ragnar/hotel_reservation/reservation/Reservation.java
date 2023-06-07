@@ -50,7 +50,7 @@ public class Reservation {
     @JoinColumn(name = "user_id")
     private User user;
 
-    @OneToOne(cascade = CascadeType.ALL)
+    @OneToOne(cascade = CascadeType.MERGE)
     private Room reservedRoom;
 
     @Enumerated(EnumType.STRING)

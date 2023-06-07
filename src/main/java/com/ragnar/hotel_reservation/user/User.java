@@ -24,7 +24,6 @@ import java.util.Set;
 
 )
 public class User {
-
     @Id
     @SequenceGenerator(
             name = "app_user_id_seq",

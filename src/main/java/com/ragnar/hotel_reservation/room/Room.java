@@ -7,7 +7,6 @@ import lombok.NoArgsConstructor;
 import lombok.Setter;
 
 @Entity
-@AllArgsConstructor
 @NoArgsConstructor
 @Getter
 @Setter
@@ -48,5 +47,13 @@ public class Room {
         this.roomNumber = roomNumber;
         this.bookingPrice = bookingPrice;
         this.roomStatus = RoomStatus.AVAILABLE;
+    }
+
+    public Room(Long id, int roomNumber, RoomType roomType, RoomStatus roomStatus, double bookingPrice) {
+        this.id = id;
+        this.roomNumber = roomNumber;
+        this.roomType = roomType;
+        this.roomStatus = roomStatus;
+        this.bookingPrice = bookingPrice;
     }
 }
