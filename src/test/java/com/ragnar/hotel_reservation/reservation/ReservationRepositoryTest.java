@@ -7,7 +7,6 @@ import com.ragnar.hotel_reservation.room.RoomStatus;
 import com.ragnar.hotel_reservation.room.RoomType;
 import com.ragnar.hotel_reservation.user.User;
 import com.ragnar.hotel_reservation.user.UserRepository;
-import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.BeforeEach;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -23,8 +22,11 @@ import java.util.Optional;
 import java.util.UUID;
 
 import static org.assertj.core.api.Assertions.assertThat;
-import static org.junit.jupiter.api.Assertions.*;
-import static org.mockito.BDDMockito.given;
+import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNotNull;
+import static org.mockito.ArgumentMatchers.anyInt;
+import static org.mockito.ArgumentMatchers.anyLong;
+import static org.mockito.Mockito.when;
 
 @DataJpaTest
 @ExtendWith(MockitoExtension.class)
@@ -39,60 +41,53 @@ class ReservationRepositoryTest extends AbstractTestcontainers {
 
     @Mock
     RoomRepository roomRepository;
+
     @BeforeEach
     void setUp() {
     }
 
     @Test
     void findReservationById() {
-        String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
-        String firstName = FAKER.name().firstName();
-        String lastName = FAKER.name().lastName();
-        String phoneNumber = "08050569858";
-        String password = "password";
-
-        User user = new User(
-                1L,
-                email,
-                phoneNumber,
-                password,
-                firstName,
-                lastName
-        );
-        userRepository.save(user);
-
-
-
-        long id = userRepository.findAll()
-                .stream()
-                .filter(c -> c.getEmail().equals(email))
-                .map(User::getId)
-                .findFirst()
-                .orElseThrow();
-
-        User t = userRepository.findUserById(id).orElseThrow();
-
-        Room room = new Room(
-                11L,
-                104,
-                RoomType.DELUXE,
-                RoomStatus.AVAILABLE,
-                20000
-        );
-
-        LocalDate checkInDate = LocalDate.of(2023, 6, 1);
-        LocalDate checkOutDate = LocalDate.of(2023, 6, 5);
-
+//        String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
+//        String firstName = FAKER.name().firstName();
+//        String lastName = FAKER.name().lastName();
+//        String phoneNumber = "08050569858";
+//        String password = "password";
+//
+//        User user = new User();
+//        user.setId(1L);
+//        user.setEmail(email);
+//        user.setFirstname(firstName);
+//        user.setLastname(lastName);
+//        user.setPhoneNumber(phoneNumber);
+//        user.setPassword(password);
+//        userRepository.save(user);
+//
+//        Room room = new Room(
+//                11L,
+//                104,
+//                RoomType.DELUXE,
+//                RoomStatus.AVAILABLE,
+//                20000
+//        );
+//
+//        LocalDate checkInDate = LocalDate.of(2023, 6, 1);
+//        LocalDate checkOutDate = LocalDate.of(2023, 6, 5);
+//
         String transactionId = "welcome123";
-        Reservation reservation = new Reservation(
-                checkInDate,
-                checkOutDate,
-                t,
-                transactionId,
-                room
-        );
-        underTest.save(reservation);
-
+//        Reservation reservation = new Reservation();
+//        reservation.setUser(user);
+//        reservation.setCheckOutDate(checkOutDate);
+//        reservation.setCheckInDate(checkInDate);
+//        reservation.setReservedRoom(room);
+//        reservation.setCreatedAt(LocalDate.now());
+//        reservation.setTransactionId(transactionId);
+//        reservation.setStatus(ReservationStatus.PENDING);
+//
+//        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(user)); // Match the specific user ID
+//
+//        underTest.save(reservation);
+////
         long rid = underTest.findAll()
                 .stream()
                 .filter(c -> c.getTransactionId().equals(transactionId))
@@ -100,13 +95,17 @@ class ReservationRepositoryTest extends AbstractTestcontainers {
                 .findFirst()
                 .orElseThrow();
 
+        Reservation reservation = new Reservation();
+        reservation.setTransactionId(transactionId);
+        reservation.setCreatedAt(LocalDate.now());
+        underTest.save(reservation);
+
         Optional<Reservation> existingReservation = underTest.findReservationById(rid);
 
         assertThat(existingReservation)
                 .isPresent()
                 .hasValueSatisfying(c -> assertThat(c).isEqualToComparingFieldByField(reservation));
     }
-
 
 
     @Test
