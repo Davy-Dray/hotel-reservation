@@ -48,59 +48,54 @@ class ReservationRepositoryTest extends AbstractTestcontainers {
 
     @Test
     void findReservationById() {
-//        String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
-//        String firstName = FAKER.name().firstName();
-//        String lastName = FAKER.name().lastName();
-//        String phoneNumber = "08050569858";
-//        String password = "password";
-//
-//        User user = new User();
-//        user.setId(1L);
-//        user.setEmail(email);
-//        user.setFirstname(firstName);
-//        user.setLastname(lastName);
-//        user.setPhoneNumber(phoneNumber);
-//        user.setPassword(password);
-//        userRepository.save(user);
-//
-//        Room room = new Room(
-//                11L,
-//                104,
-//                RoomType.DELUXE,
-//                RoomStatus.AVAILABLE,
-//                20000
-//        );
-//
-//        LocalDate checkInDate = LocalDate.of(2023, 6, 1);
-//        LocalDate checkOutDate = LocalDate.of(2023, 6, 5);
-//
+        String email = FAKER.internet().safeEmailAddress() + "-" + UUID.randomUUID();
+        String firstName = FAKER.name().firstName();
+        String lastName = FAKER.name().lastName();
+        String phoneNumber = "08050569858";
+        String password = "password";
+
+        User user = new User();
+        user.setId(1L);
+        user.setEmail(email);
+        user.setFirstname(firstName);
+        user.setLastname(lastName);
+        user.setPhoneNumber(phoneNumber);
+        user.setPassword(password);
+        userRepository.save(user);
+
+        Room room = new Room(
+                11L,
+                104,
+                RoomType.DELUXE,
+                RoomStatus.AVAILABLE,
+                20000
+        );
+
+        LocalDate checkInDate = LocalDate.of(2023, 6, 1);
+        LocalDate checkOutDate = LocalDate.of(2023, 6, 5);
+
         String transactionId = "welcome123";
-//        Reservation reservation = new Reservation();
-//        reservation.setUser(user);
-//        reservation.setCheckOutDate(checkOutDate);
-//        reservation.setCheckInDate(checkInDate);
-//        reservation.setReservedRoom(room);
-//        reservation.setCreatedAt(LocalDate.now());
-//        reservation.setTransactionId(transactionId);
-//        reservation.setStatus(ReservationStatus.PENDING);
-//
-//        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(user)); // Match the specific user ID
-//
-//        underTest.save(reservation);
-////
-        long rid = underTest.findAll()
-                .stream()
-                .filter(c -> c.getTransactionId().equals(transactionId))
-                .map(Reservation::getId)
-                .findFirst()
-                .orElseThrow();
-
         Reservation reservation = new Reservation();
-        reservation.setTransactionId(transactionId);
+        reservation.setUser(user);
+        reservation.setCheckOutDate(checkOutDate);
+        reservation.setCheckInDate(checkInDate);
+        reservation.setReservedRoom(room);
         reservation.setCreatedAt(LocalDate.now());
-        underTest.save(reservation);
+        reservation.setTransactionId(transactionId);
+        reservation.setStatus(ReservationStatus.PENDING);
 
-        Optional<Reservation> existingReservation = underTest.findReservationById(rid);
+        when(userRepository.findById(1L)).thenReturn(java.util.Optional.of(user)); // Match the specific user ID
+
+        underTest.save(reservation);
+//
+//        long rid = underTest.findAll()
+//                .stream()
+//                .filter(c -> c.getTransactionId().equals(transactionId))
+//                .map(Reservation::getId)
+//                .findFirst()
+//                .orElseThrow();
+
+        Optional<Reservation> existingReservation = underTest.findReservationById(1L);
 
         assertThat(existingReservation)
                 .isPresent()
