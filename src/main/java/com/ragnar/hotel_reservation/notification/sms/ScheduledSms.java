@@ -50,10 +50,10 @@ public class ScheduledSms {
 
     /**
      *cancels reservations
-     * sends notification to users whose reservations where cancelled
+     * sends notification to users whose reservations were cancelled
      */
-    // @Scheduled(cron= "0 0/30 8-13 * * *")
-    @Scheduled(cron = "0 * * * * *")
+    @Scheduled(cron= "0 0/30 8-13 * * *")
+  //  @Scheduled(cron = "0 * * * * *")
     public void cancelStaleReservations() {
         LocalDate yesterday = LocalDate.now().minusDays(1);
         List<Reservation> staleReservations =

@@ -235,22 +235,18 @@ public class ReservationServiceImpl implements ReservationService {
                     "reservation is %s ".formatted(reservation.getStatus().name())
             );
         }
+        LocalDate newCheckInDate = InputValidation.parseLocalDate(updateRequest.checkInDate());
+        LocalDate newCheckOutDate = InputValidation.parseLocalDate(updateRequest.checkOutDate());
+        InputValidation.validateReservationDates(newCheckInDate, newCheckOutDate);
 
-        LocalDate checkInDate = InputValidation.parseLocalDate(updateRequest.checkInDate());
-        LocalDate checkOutDate = InputValidation.parseLocalDate(updateRequest.checkOutDate());
-        InputValidation.validateReservationDates(checkInDate, checkOutDate);
-
-        System.out.println("new"+checkInDate);
-        System.out.println("old"+reservation.getCheckInDate());
-
-        if (checkInDate.equals(reservation.getCheckInDate())) {
+        if (newCheckInDate.equals(reservation.getCheckInDate())) {
             throw new RequestValidationException("no data changes found");
 
         }
 
         reservation.setStatus(ReservationStatus.CANCELLED);
 
-        if (isReservationAllowed(reservation.getReservedRoom().getId(), checkInDate, checkOutDate)) {
+        if (isReservationAllowed(reservation.getReservedRoom().getId(), newCheckInDate, newCheckOutDate)) {
             throw new DuplicateResourceException(
                            """
                             Room is not available for the specified dates.
@@ -259,8 +255,8 @@ public class ReservationServiceImpl implements ReservationService {
             );
         }
 
-        reservation.setCheckInDate(checkInDate);
-        reservation.setCheckOutDate(checkOutDate);
+        reservation.setCheckInDate(newCheckInDate);
+        reservation.setCheckOutDate(newCheckOutDate);
         reservation.setStatus(ReservationStatus.PENDING);
 
         reservationRepository.save(reservation);
