@@ -116,24 +116,22 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     public void checkClientOut(String reservationId) {
         Reservation reservation = findReservationByTransactionId(reservationId);
-        Room reservedRoom = reservation.getReservedRoom();
         ReservationStatus reservationStatus = reservation.getStatus();
 
-        if (reservationStatus == ReservationStatus.ACTIVE) {
-            reservation.setStatus(ReservationStatus.COMPLETED);
-            reservedRoom.setRoomStatus(RoomStatus.AVAILABLE);
-        } else {
-            throw new ReservationException(
-                    "reservation is %s ".formatted(reservation.getStatus())
-            );
+        if (reservationStatus != ReservationStatus.ACTIVE) {
+            throw new ReservationException("Reservation is %s".formatted(reservationStatus));
         }
+
+        Room reservedRoom = reservation.getReservedRoom();
+        reservation.setStatus(ReservationStatus.COMPLETED);
+        reservedRoom.setRoomStatus(RoomStatus.AVAILABLE);
+
         reservationRepository.save(reservation);
-        ReservationHistory reservationHistory = new ReservationHistory(
-                reservation,
-                "CHECK-OUT"
-        );
+
+        ReservationHistory reservationHistory = new ReservationHistory(reservation, "CHECK-OUT");
         reservationHistoryService.createReservationHistory(reservationHistory);
     }
+
 
     @Override
     public boolean existsReservationById(Long id) {
@@ -222,51 +220,79 @@ public class ReservationServiceImpl implements ReservationService {
     @Override
     @Transactional
     public void updateReservation(Long id, ReservationUpdateRequest updateRequest) {
-        if (existsReservationById(id)) {
-            throw new ResourceNotFoundException(
-                    "reservation with id [%s] not found".formatted(id)
-            );
-        }
         Reservation reservation = findReservationById(id);
-        ReservationStatus reservationStatus = reservation.getStatus();
-        if (reservationStatus != ReservationStatus.PENDING) {
-
-            throw new ReservationException(
-                    "reservation is %s ".formatted(reservation.getStatus().name())
-            );
+        if (reservation.getStatus() != ReservationStatus.PENDING) {
+            throw new ReservationException("Reservation is %s".formatted(reservation.getStatus().name()));
         }
         LocalDate newCheckInDate = InputValidation.parseLocalDate(updateRequest.checkInDate());
         LocalDate newCheckOutDate = InputValidation.parseLocalDate(updateRequest.checkOutDate());
         InputValidation.validateReservationDates(newCheckInDate, newCheckOutDate);
 
         if (newCheckInDate.equals(reservation.getCheckInDate())) {
-            throw new RequestValidationException("no data changes found");
-
+            throw new RequestValidationException("No data changes found");
         }
-
         reservation.setStatus(ReservationStatus.CANCELLED);
 
         if (isReservationAllowed(reservation.getReservedRoom().getId(), newCheckInDate, newCheckOutDate)) {
             throw new DuplicateResourceException(
-                           """
+                            """
                             Room is not available for the specified dates.
                             Please pick other dates or another room
-                             """
+                            """
             );
         }
-
         reservation.setCheckInDate(newCheckInDate);
         reservation.setCheckOutDate(newCheckOutDate);
         reservation.setStatus(ReservationStatus.PENDING);
-
         reservationRepository.save(reservation);
-        ReservationHistory reservationHistory = new ReservationHistory(
-                reservation,
-                "UPDATE"
-        );
+
+        ReservationHistory reservationHistory = new ReservationHistory(reservation, "UPDATE");
         reservationHistoryService.createReservationHistory(reservationHistory);
     }
 
+//    @Override
+//    @Transactional
+//    public void updateReservation(Long id, ReservationUpdateRequest updateRequest) {
+//        if (existsReservationById(id)) {
+//            throw new ResourceNotFoundException(
+//                    "reservation with id [%s] not found".formatted(id)
+//            );
+//        }
+//        Reservation reservation = findReservationById(id);
+//        ReservationStatus reservationStatus = reservation.getStatus();
+//        if (reservationStatus != ReservationStatus.PENDING) {
+//            throw new ReservationException(
+//                    "reservation is %s ".formatted(reservation.getStatus().name())
+//            );
+//        }
+//        LocalDate newCheckInDate = InputValidation.parseLocalDate(updateRequest.checkInDate());
+//        LocalDate newCheckOutDate = InputValidation.parseLocalDate(updateRequest.checkOutDate());
+//        InputValidation.validateReservationDates(newCheckInDate, newCheckOutDate);
+//
+//        if (newCheckInDate.equals(reservation.getCheckInDate())) {
+//            throw new RequestValidationException("no data changes found");
+//
+//        }
+//        reservation.setStatus(ReservationStatus.CANCELLED);
+//        if (isReservationAllowed(reservation.getReservedRoom().getId(), newCheckInDate, newCheckOutDate)) {
+//            throw new DuplicateResourceException(
+//                           """
+//                            Room is not available for the specified dates.
+//                            Please pick other dates or another room
+//                             """
+//            );
+//        }
+//        reservation.setCheckInDate(newCheckInDate);
+//        reservation.setCheckOutDate(newCheckOutDate);
+//        reservation.setStatus(ReservationStatus.PENDING);
+//        reservationRepository.save(reservation);
+//        ReservationHistory reservationHistory = new ReservationHistory(
+//                reservation,
+//                "UPDATE"
+//        );
+//        reservationHistoryService.createReservationHistory(reservationHistory);
+//    }
+//
 
     private String generateTransactionId() {
         ThreadLocalRandom random = ThreadLocalRandom.current();
