@@ -13,6 +13,7 @@
     <version>0.0.1-SNAPSHOT</version>
     <name>hotel_reservation</name>
     <description>hotel_reservation</description>
+
     <properties>
         <java.version>17</java.version>
     </properties>
@@ -100,6 +101,8 @@
     </dependencies>
 
     <build>
+
+
         <plugins>
             <plugin>
                 <groupId>org.springframework.boot</groupId>

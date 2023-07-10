@@ -46,7 +46,7 @@ class RoomRepositoryTest extends AbstractTestcontainers {
                         .isEqualToComparingFieldByField(room));
     }
 
-    @Test
-    void findAvailableRoomsExcept() {
-    }
+//    @Test
+//    void findAvailableRoomsExcept() {
+//    }
 }
